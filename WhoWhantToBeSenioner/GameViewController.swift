@@ -9,69 +9,93 @@ import UIKit
 
 final class GameViewController: UIViewController {
     
+    @IBOutlet private var numberQuestionLabel: UILabel!
     @IBOutlet private var questionLabel: UILabel!
-    @IBOutlet private var firstButton: UIButton!
-    @IBOutlet private var secondButton: UIButton!
-    @IBOutlet private var thirdButton: UIButton!
-    @IBOutlet private var fourthButton: UIButton!
+    @IBOutlet private var answerButtons: [UIButton]!
+    @IBOutlet private var pesentComplitionLabel: UILabel!
     
-    private var questions = Questions()
+    var strategy: StrategyGame!
+    
+    private var questions = [Question]()
     private var question: Question?
     private var answers = [String]()
     
-    private var countTrueAnswer = 0
-    private var countQuestion: Int?
+    private var countAnswer = Observable<Int>(0)
+    private var countQuestions = 0
     
     weak var delegate: GameSessionDelegate?
     
     override func viewDidLoad() {
-        countQuestion = questions.questions.count
+        questions = strategy.getQuestions()
+        countAnswer.value = 0
+        countQuestions = questions.count
+        countAnswer.addObserver(self, options: [ .new, .initial ] ) { [weak self] (countAnswer, _) in
+            guard let self = self else { return }
+            self.pesentComplitionLabel.text = "Выполненно: \( Int( Float(countAnswer) / Float(self.countQuestions) * 100 ))%"
+        }
+        
         setQuestions()
     }
     
-    @IBAction private func answerSelect(_ sender: Any) {
-        guard let button = sender as? UIButton else { return }
-        guard let testButton = button.titleLabel?.text else { return }
+    @IBAction private func answerSelect(_ sender: UIButton) {
+        guard let testButton = sender.titleLabel?.text else { return }
         if answers.contains(testButton) {
             
-            countTrueAnswer += 1
-            if !questions.questions.isEmpty {
+            countAnswer.value += 1
+            if !questions.isEmpty {
                 setQuestions()
             } else {
                 delegate?.didEndGame(
-                    allCountQuestion: countQuestion ?? 0,
-                    answerCount: countTrueAnswer
+                    allCountQuestion: countQuestions,
+                    answerCount: countAnswer.value
                 )
                 print("finish")
-                self.dismiss(animated: true, completion: nil)
+                self.showResult(countTrueAnswer: countAnswer.value, countAllAnswers: countQuestions)
             }
         } else {
             delegate?.didEndGame(
-                allCountQuestion: countQuestion ?? 0,
-                answerCount: countTrueAnswer
+                allCountQuestion: countQuestions,
+                answerCount: countAnswer.value
             )
-            self.dismiss(animated: true, completion: nil)
+            self.showResult(countTrueAnswer: countAnswer.value, countAllAnswers: countQuestions)
         }
     }
     
     private func setQuestions() {
-        question = questions.questions.removeFirst()
+        question = questions.removeFirst()
         guard let question = question else { return }
         
+        numberQuestionLabel.text = "Номер билета: \(question.id)"
         questionLabel.text = question.question
         
         let answers = Array(question.answers)
-        firstButton.setTitle(answers[0].key, for: .normal)
-        secondButton.setTitle(answers[1].key, for: .normal)
-        thirdButton.setTitle(answers[2].key, for: .normal)
-        fourthButton.setTitle(answers[3].key, for: .normal)
+        answerButtons.enumerated().forEach { button in
+            button.element.setTitle(answers[button.offset].key, for: .normal)
+        }
         
         self.answers = answers
             .filter { $0.value == true }
             .map{ $0.key }
     }
+    
+    private func showResult(countTrueAnswer: Int, countAllAnswers: Int) {
+        let alert = UIAlertController(
+            title: "Результат",
+            message: "Правильных ответов: \(countTrueAnswer) \n всего вопросов: \(countAllAnswers)",
+            preferredStyle: .alert
+        )
+        let actions = UIAlertAction(
+            title: "Okay",
+            style: .cancel) { [weak self] _ in
+            self?.dismiss(animated: true, completion: nil)
+        }
+        alert.addAction(actions)
+        
+        present(alert, animated: true, completion: nil)
+    }
 }
  
 protocol GameSessionDelegate: AnyObject {
+    var gameSession: GameSession { get set }
     func didEndGame(allCountQuestion: Int, answerCount: Int)
 }

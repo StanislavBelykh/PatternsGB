@@ -7,9 +7,11 @@
 
 import Foundation
 
-struct Questions {
+struct Questions: Codable {
+    var userQuestions = [Question]()
     var questions: [Question] = [
         Question.init(
+            id: 0,
             question: "Какого типа паттерна НЕ существует",
             answers: [
                 "Поведенческие": false,
@@ -18,6 +20,7 @@ struct Questions {
                 "Наблюдательные": true
             ]),
         Question.init(
+            id: 1,
             question: "Паттерн позволяющий объектам с несовместимым интерфейсом работать вместе",
             answers: [
                 "Facade": false,
@@ -26,6 +29,7 @@ struct Questions {
                 "Adapter": true
             ]),
         Question.init(
+            id: 2,
             question: "Паттерн предназначенный для распространения сообщений / событий между разными объектами",
             answers: [
                 "Strategy": false,
@@ -34,6 +38,7 @@ struct Questions {
                 "Observer": true
             ]),
         Question.init(
+            id: 3,
             question: "Описание паттерна: Один объект для выполнения определенных действий передает управление другому объекту",
             answers: [
                 "Closure": false,
@@ -42,6 +47,7 @@ struct Questions {
                 "Delegate": true
             ]),
         Question.init(
+            id: 4,
             question: "Чем можно заменить паттерн Delegate",
             answers: [
                 "Segue": false,
@@ -50,6 +56,7 @@ struct Questions {
                 "Closure": true
             ]),
         Question.init(
+            id: 5,
             question: "Этот паттерн используется для того, чтобы при работе с объектом была возможность его сохранить и впоследствии восстановить.",
             answers: [
                 "Strategy": false,
@@ -58,6 +65,7 @@ struct Questions {
                 "Memento": true
             ]),
         Question.init(
+            id: 6,
             question: "Этот паттерн упрощает сложную систему, предоставляя простой интерфейс",
             answers: [
                 "Adapter": false,
@@ -66,6 +74,7 @@ struct Questions {
                 "Facade": true
             ]),
         Question.init(
+            id: 7,
             question: "Что означает буква М в абриввиатуре MVC",
             answers: [
                 "Multi": false,
@@ -74,6 +83,7 @@ struct Questions {
                 "Model": true
             ]),
         Question.init(
+            id: 8,
             question: "Этот паттерн применяется, когда сложный процесс создания объекта можно разбить на шаги, чтобы упростить",
             answers: [
                 "Delegate": false,
@@ -82,6 +92,7 @@ struct Questions {
                 "Builder": true
             ]),
         Question.init(
+            id: 9,
             question: "Какая архитектура лучшая?",
             answers: [
                 "MVVM": true,
@@ -90,9 +101,14 @@ struct Questions {
                 "MVC": true
             ]),
     ]
+    
+    func getQuestions() -> [Question] {
+        return questions + userQuestions
+    }
 }
 
-struct Question {
+struct Question: Codable {
+    let id: Int
     let question: String
     let answers: [String: Bool]
 }

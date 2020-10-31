@@ -12,6 +12,7 @@ final class Game {
     static let shared = Game()
     
     var currentGame: GameSession?
+    var sequenceIsShuffle = false
     
     private(set) var games = [GameSession]()
     private let recorder = GameCaretaker()
@@ -32,4 +33,3 @@ final class Game {
         print(games)
     }
 }
-

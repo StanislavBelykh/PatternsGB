@@ -10,7 +10,7 @@ import Foundation
 class GameSession: Codable {
     var countQuestion: Int
     var countAnswers: Int
-    
+
     private var rang: Rang {
         switch Double(countAnswers)/Double(countQuestion) {
         case 0..<0.25:
